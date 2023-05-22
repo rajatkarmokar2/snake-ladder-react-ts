@@ -26,6 +26,8 @@ body {
 
 .onboard-players {
     margin: auto;
+    position: relative;
+    z-index: 1000;
 }
 
 
@@ -201,7 +203,7 @@ body {
     border-radius: 50%;
     transform    : scale(0);
     /* transition   : 1s; */
-    animation    : zoominout 1s var(--delay);
+    animation    : zoominout .5s var(--delay);
 }
 
 

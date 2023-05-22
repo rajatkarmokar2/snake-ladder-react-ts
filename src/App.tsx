@@ -1,7 +1,6 @@
 /** @format */
 
 import React, { useState } from 'react'
-import { preProcessFile } from 'typescript'
 import './App.css'
 
 console.clear()
@@ -15,6 +14,14 @@ type Players = {
 	name: string
 }
 let chance = 0
+function getRandomColor() {
+	const letters = '0123456789ABCDEF'
+	let color = '#'
+	for (var i = 0; i < 6; i++) {
+		color += letters[Math.floor(Math.random() * 16)]
+	}
+	return color
+}
 function App() {
 	// const num: number = 34
 	// const str: string = 'string'
@@ -22,17 +29,9 @@ function App() {
 	// const arr: Array<object> = [{ hello: 'sh' }, { world: 'sh' }]
 	// console.clear();
 
-	function getRandomColor() {
-		const letters = '0123456789ABCDEF'
-		let color = '#'
-		for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * 16)]
-		}
-		return color
-	}
-
 	const [diceNum, setDiceNum] = useState<string>('')
 	const [players, setPlayers] = useState<Players[]>([])
+	const [blackhole, setBlackHoles] = useState<number[]>([5, 19, 28, 43, 51, 66, 80, 87, 92])
 
 	function reverse(start: number, end: number, reverse: boolean) {
 		let arr = []
@@ -41,7 +40,6 @@ function App() {
 		}
 		return (reverse && arr.reverse()) || arr
 	}
-
 	function makeGrid(max: number = 100) {
 		let rev = true
 		let arr = []
@@ -58,7 +56,6 @@ function App() {
 		return arr
 	}
 	const grid = makeGrid().reverse()
-
 	function onAddPlayer() {
 		setPlayers((ps) => [
 			...ps,
@@ -89,11 +86,9 @@ function App() {
 		const data = players.filter((player) => player.id !== id)
 		setPlayers(data)
 	}
-
 	function generateId() {
 		return '_' + Math.ceil(Math.random() * 1000)
 	}
-
 	function randomeDice() {
 		const num = Math.ceil(Math.random() * 6)
 		// console.log(num)
@@ -103,14 +98,17 @@ function App() {
 			movePlayer(num)
 		}, 1000)
 	}
-
 	function movePlayer(position: number) {
 		const getchance = changePlayerChance() - 1
 		const data = players.map((player, index) =>
 			index === getchance
 				? {
 						...player,
-						position: player.position + position,
+						position:
+							(blackhole.includes(position) &&
+								blackhole[Math.floor(Math.random() * blackhole.length)]) ||
+							(player.position + position > 100 && 100) ||
+							player.position + position,
 						preposition: player.position,
 						chance: true,
 				  }
@@ -123,7 +121,6 @@ function App() {
 			return chance
 		}
 	}
-
 	function dangerBlock() {
 		const arr = Array(10)
 		// console.log(arr.map(() => Math.ceil(Math.random() * 100)))
@@ -132,7 +129,7 @@ function App() {
 
 	return (
 		<div className='App'>
-			<div className=' d-flex align-items-center justify-content-center gap-5'>
+			<div className=' d-flex flex-wrap align-items-center justify-content-center gap-5'>
 				<div>
 					<div className='players'>
 						<div className=' d-flex flex-column align-items-center gap-3'>
@@ -185,7 +182,7 @@ function App() {
 										<small className='position'>{col}</small>
 										<i className='onboard-players d-flex flex-wrap'>
 											{players.map((player, i) => {
-												const delay = col / player.preposition
+												const delay = col / 50
 												player.position >= col &&
 													player.preposition <= col &&
 													console.log(delay, col, player.preposition)
@@ -207,6 +204,15 @@ function App() {
 												)
 											})}
 										</i>
+										{blackhole.includes(col) && (
+											<img
+												className='position-absolute top-0 start-0 m-auto'
+												height={50}
+												width={50}
+												src='./blackhole.svg'
+												alt=''
+											/>
+										)}
 									</div>
 								))}
 							</div>
